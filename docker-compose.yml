@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  server1:
+    image: ubuntu-ansible
+    container_name: server1
+    ports:
+      - "2201:22"
+    hostname: server1
+    networks:
+      my_ansible_network:
+        ipv4_address: 172.20.0.11
+
+  server2:
+    image: ubuntu-ansible
+    container_name: server2
+    ports:
+      - "2202:22"
+    hostname: server2
+    networks:
+      my_ansible_network:
+        ipv4_address: 172.20.0.12
+
+  server3:
+    image: ubuntu-ansible
+    container_name: server3
+    ports:
+      - "2203:22"
+    hostname: server3
+    networks:
+      my_ansible_network:
+        ipv4_address: 172.20.0.13
+
+  server4:
+    image: ubuntu-ansible
+    container_name: server4
+    ports:
+      - "2204:22"
+    hostname: server4
+    networks:
+      my_ansible_network:
+        ipv4_address: 172.20.0.14
+
+  server5:
+    image: ubuntu-ansible
+    container_name: server5
+    ports:
+      - "2205:22"
+    hostname: server5
+    networks:
+      my_ansible_network:
+        ipv4_address: 172.20.0.15
+
+networks:
+  my_ansible_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
