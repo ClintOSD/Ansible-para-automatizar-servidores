@@ -1,0 +1,58 @@
+---
+- name: Configurar servidores Ubuntu
+  hosts: servers
+  become: yes # Ejecuta tareas con privilegios de sudo
+
+  tasks:
+    - name: Actualizar paquetes de APT
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+        cache_valid_time: 3600 # Actualiza el cache si tiene mas de 1 hora
+
+    - name: Crear usuario itla
+      user:
+        name: itla
+        state: present
+        shell: /bin/bash
+        create_home: yes
+        password: "{{ 'itla' | password_hash('sha512') }}" # Establece una contraseña segura (ejemplo: itla)
+
+    - name: Crear carpeta "app"
+      file:
+        path: /app
+        state: directory
+        owner: itla
+        group: itla
+        mode: '0755'
+
+    - name: Crear archivo hola.txt en la carpeta app
+      copy:
+        content: "Hola desde Ansible en {{ inventory_hostname }}!"
+        dest: /app/hola.txt
+        owner: itla
+        group: itla
+        mode: '0644'
+
+    - name: Instalar la aplicación "cowsay"
+      apt:
+        name: cowsay
+        state: present
+
+    - name: Instalar la aplicación "htop"
+      apt:
+        name: htop
+        state: present
+
+    - name: Verificar la instalación de cowsay (opcional)
+      command: cowsay "Ansible ha sido exitoso en {{ inventory_hostname }}!"
+      register: cowsay_output
+      changed_when: false # Esta tarea no cambia el estado del sistema
+      ignore_errors: true # Para que el playbook continue si cowsay no se encuentra
+      failed_when: cowsay_output.rc != 0 and cowsay_output.rc != 127
+      when: cowsay_output.rc == 0 # Solo ejecuta si cowsay esta instalado
+
+    - name: Mostrar mensaje de cowsay (opcional)
+      debug:
+        msg: "{{ cowsay_output.stdout }}"
+      when: cowsay_output.rc == 0
